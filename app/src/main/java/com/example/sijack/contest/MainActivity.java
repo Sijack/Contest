@@ -1,6 +1,7 @@
 package com.example.sijack.contest;
 
 import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -189,7 +190,7 @@ public class MainActivity extends AppCompatActivity
         // Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchResultsActivity.class)));
         searchView.setIconifiedByDefault(false);
         Log.d("SEARCH", searchManager.getSearchableInfo(getComponentName()).toString());
         return true;

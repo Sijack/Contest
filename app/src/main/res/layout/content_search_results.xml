@@ -8,9 +8,66 @@
     tools:context="com.example.sijack.contest.SearchResultsActivity"
     tools:showIn="@layout/activity_search_results">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ricerca"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Aulee"
+            android:paddingTop="5dp"
+            android:paddingLeft="10dp"/>
+
+        <ListView
+            android:id="@+id/auleeList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </ListView>
+
+        <View
+            android:id="@+id/divider_line"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Laboratori"
+            android:paddingTop="5dp"
+            android:paddingLeft="10dp"/>
+
+        <ListView
+            android:id="@+id/labList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </ListView>
+
+        <View
+            android:id="@+id/divider_line2"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Uffici"
+            android:paddingTop="5dp"
+            android:paddingLeft="10dp"/>
+
+        <ListView
+            android:id="@+id/ufficiList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </ListView>
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
