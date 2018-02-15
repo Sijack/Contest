@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract RoomDao roomDao();
+    static boolean ok = false;
 
     private static AppDatabase INSTANCE;
 
@@ -27,19 +28,8 @@ public abstract class AppDatabase extends RoomDatabase {
             Log.d("DEBUG", "instance if");
 
             INSTANCE = buildDatabase(context);
-        } else {
-
-            Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (INSTANCE.roomDao().getAll().size() == 0) {
-                        INSTANCE.roomDao().insertAll(Room.populateData());
-                        Log.d("DEBUG", "db created");
-                    }
-                }
-            });
-
         }
+        Log.d("OUT", "out");
         return INSTANCE;
     }
 

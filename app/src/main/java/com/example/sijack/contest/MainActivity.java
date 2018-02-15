@@ -228,6 +228,9 @@ public class MainActivity extends AppCompatActivity
                    @Override
                    public void run() {
                        rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
+                       while (rooms.size() == 0) {
+                           rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
+                       }
                        Log.d("ROOMS", rooms.size() + "");
                    }
                }).start();
