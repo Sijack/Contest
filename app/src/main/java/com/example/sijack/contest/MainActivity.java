@@ -3,6 +3,7 @@ package com.example.sijack.contest;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -42,6 +43,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    private static final int ACTIVITY_REQUEST_CODE = 0;
     ImageView plant;
     ScrollView scrollView;
     HorizontalScrollView hScrollView;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        handleIntent(getIntent());
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -132,7 +135,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-
         llBottomSheet = (LinearLayout) findViewById(R.id.bottom_sheet);
 
 // init the bottom sheet behavior
@@ -190,9 +192,8 @@ public class MainActivity extends AppCompatActivity
         // Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(new ComponentName(this, SearchResultsActivity.class)));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()/*new ComponentName(this, SearchResultsActivity.class*/));
         searchView.setIconifiedByDefault(false);
-        Log.d("SEARCH", searchManager.getSearchableInfo(getComponentName()).toString());
         return true;
     }
 
@@ -220,58 +221,58 @@ public class MainActivity extends AppCompatActivity
         if (isScrollable)
             imageClicked(plant);
 
-       switch (id) {
-           case R.id.edificio_f:
-               //TODO caricare i piani nel floating menu
-               plant.setImageResource(R.drawable.f_stecca7_piano4);
-               new Thread(new Runnable() {
-                   @Override
-                   public void run() {
-                       rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
-                       while (rooms.size() == 0) {
-                           rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
-                       }
-                       Log.d("ROOMS", rooms.size() + "");
-                   }
-               }).start();
-               fabMenu.removeAllMenuButtons();
-               fabMenu.addMenuButton(b4);
-               fabMenu.addMenuButton(b2);
-               building = 0;
-               break;
+        switch (id) {
+            case R.id.edificio_f:
+                //TODO caricare i piani nel floating menu
+                plant.setImageResource(R.drawable.f_stecca7_piano4);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
+                        while (rooms.size() == 0) {
+                            rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
+                        }
+                        Log.d("ROOMS", rooms.size() + "");
+                    }
+                }).start();
+                fabMenu.removeAllMenuButtons();
+                fabMenu.addMenuButton(b4);
+                fabMenu.addMenuButton(b2);
+                building = 0;
+                break;
 
-           case R.id.edificio_f2:
-               plant.setImageResource(R.drawable.f2_piano0);
-               new Thread(new Runnable() {
-                   @Override
-                   public void run() {
-                       rooms = db.roomDao().getRoomsByBuildingFloor("F2", 0);
-                       Log.d("ROOMS", rooms.size() + "");
-                   }
-               }).start();
-               fabMenu.removeAllMenuButtons();
-               fabMenu.addMenuButton(b1);
-               fabMenu.addMenuButton(b0);
-               fabMenu.addMenuButton(b_1);
-               building = 1;
-               break;
-           case R.id.edificio_f3:
-               plant.setImageResource(R.drawable.f3_piano0);
-               new Thread(new Runnable() {
-                   @Override
-                   public void run() {
-                       rooms = db.roomDao().getRoomsByBuildingFloor("F3", 0);
-                       Log.d("ROOMS", rooms.size() + "");
-                   }
-               }).start();
-               fabMenu.removeAllMenuButtons();
-               fabMenu.addMenuButton(b2);
-               fabMenu.addMenuButton(b1);
-               fabMenu.addMenuButton(b0);
-               fabMenu.addMenuButton(b_1);
-               building = 2;
-               break;
-       }
+            case R.id.edificio_f2:
+                plant.setImageResource(R.drawable.f2_piano0);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rooms = db.roomDao().getRoomsByBuildingFloor("F2", 0);
+                        Log.d("ROOMS", rooms.size() + "");
+                    }
+                }).start();
+                fabMenu.removeAllMenuButtons();
+                fabMenu.addMenuButton(b1);
+                fabMenu.addMenuButton(b0);
+                fabMenu.addMenuButton(b_1);
+                building = 1;
+                break;
+            case R.id.edificio_f3:
+                plant.setImageResource(R.drawable.f3_piano0);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rooms = db.roomDao().getRoomsByBuildingFloor("F3", 0);
+                        Log.d("ROOMS", rooms.size() + "");
+                    }
+                }).start();
+                fabMenu.removeAllMenuButtons();
+                fabMenu.addMenuButton(b2);
+                fabMenu.addMenuButton(b1);
+                fabMenu.addMenuButton(b0);
+                fabMenu.addMenuButton(b_1);
+                building = 2;
+                break;
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -319,7 +320,7 @@ public class MainActivity extends AppCompatActivity
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F", Integer.parseInt((String)v.getTag()));
+                            rooms = db.roomDao().getRoomsByBuildingFloor("F", Integer.parseInt((String) v.getTag()));
                             addRooms();
                             Log.d("ROOMS", rooms.size() + "");
                         }
@@ -331,7 +332,7 @@ public class MainActivity extends AppCompatActivity
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F2", v.getTag().equals("m1")?-1:Integer.parseInt((String)v.getTag()));
+                            rooms = db.roomDao().getRoomsByBuildingFloor("F2", v.getTag().equals("m1") ? -1 : Integer.parseInt((String) v.getTag()));
                             Log.d("ROOMS", rooms.size() + "");
                         }
                     }).start();
@@ -342,14 +343,14 @@ public class MainActivity extends AppCompatActivity
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F3", v.getTag().equals("m1")?-1:Integer.parseInt((String)v.getTag()));
+                            rooms = db.roomDao().getRoomsByBuildingFloor("F3", v.getTag().equals("m1") ? -1 : Integer.parseInt((String) v.getTag()));
                             Log.d("ROOMS", rooms.size() + "");
                         }
                     }).start();
                     break;
             }
             if (isScrollable)
-             imageClicked(plant);
+                imageClicked(plant);
         }
     }
 
@@ -359,14 +360,14 @@ public class MainActivity extends AppCompatActivity
         int markerd = marker.getWidth();
 
         for (Room r : rooms) {
-            int x = r.getX()*(int)screen_density;
-            int y = r.getY()*(int)screen_density;
-            int w = r.getWidth()*(int)screen_density;
-            int h = r.getHeight()*(int)screen_density;
+            int x = r.getX() * (int) screen_density;
+            int y = r.getY() * (int) screen_density;
+            int w = r.getWidth() * (int) screen_density;
+            int h = r.getHeight() * (int) screen_density;
 
             iv = new MarkerImageView(this);
-            iv.setX(x+(w/2)-(markerd/2));
-            iv.setY(y+(h/2)-(markerd/2));
+            iv.setX(x + (w / 2) - (markerd / 2));
+            iv.setY(y + (h / 2) - (markerd / 2));
             iv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
 
             iv.setOnClickListener(new MarkerListener(this, fc, llBottomSheet, r));
@@ -374,6 +375,42 @@ public class MainActivity extends AppCompatActivity
 
             fc.addView(iv);
 
+        }
+
+
+    }
+
+    private void handleIntent(Intent intent) {
+        // Get the intent, verify the action and get the query
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            // manually launch the real search activity
+            final Intent searchIntent = new Intent(getApplicationContext(),
+                    SearchResultsActivity.class);
+            // add query to the Intent Extras
+            searchIntent.putExtra(SearchManager.QUERY, query);
+            searchIntent.setAction(Intent.ACTION_SEARCH);
+            Log.d("INTENT", "Starting activity for result");
+            startActivityForResult(searchIntent, ACTIVITY_REQUEST_CODE);
+        }
+
+
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d("INTENT", "on new intent");
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
+        Log.d("RESULT",  "entering");
+        if (requestCode == ACTIVITY_REQUEST_CODE) {
+            int roomId = data.getIntExtra("roomId", -1);
+            Log.d("RESULT", roomId + "");
         }
     }
 }
