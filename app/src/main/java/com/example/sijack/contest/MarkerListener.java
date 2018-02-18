@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.design.widget.BottomSheetBehavior;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -16,13 +17,13 @@ import com.example.sijack.contest.database.Room;
 
 public class MarkerListener implements View.OnClickListener {
     private boolean focused = false;
-    private RelativeLayout frameContainer;
+    private ViewGroup frameContainer;
     private Context context;
     private BottomSheetBehavior bottomSheetBehavior;
     private LinearLayout bottomSheet;
     private Room room;
 
-    public MarkerListener(Context context, RelativeLayout fc, View bottomSheet, Room r) {
+    public MarkerListener(Context context, ViewGroup fc, View bottomSheet, Room r) {
         frameContainer = fc;
         this.context = context;
         this.bottomSheet = (LinearLayout) bottomSheet;
@@ -48,6 +49,7 @@ public class MarkerListener implements View.OnClickListener {
             }
 
             thisIv.setFocused(true);
+            Log.d("FOCUS", thisIv.isFocused() + "");
             tv.setText(room.getType() + " " + room.getNumber());
 
             if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED && bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {

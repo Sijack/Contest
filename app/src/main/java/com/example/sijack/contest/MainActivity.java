@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -58,7 +59,10 @@ public class MainActivity extends AppCompatActivity
     BottomSheetBehavior bottomSheetBehavior;
     AppDatabase db;
     List<Room> rooms;
-    int building;
+    NavigationView navigationView;
+    int building, floorFromSearch = -2, iw, ih, iW, iH;
+    Toolbar toolbar;
+    Thread t, adder;
 
 
     @Override
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         handleIntent(getIntent());
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         db = AppDatabase.getInstance(getApplicationContext());
@@ -131,7 +135,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
@@ -218,23 +222,13 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (isScrollable)
-            imageClicked(plant);
-
         switch (id) {
             case R.id.edificio_f:
-                //TODO caricare i piani nel floating menu
                 plant.setImageResource(R.drawable.f_stecca7_piano4);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
-                        while (rooms.size() == 0) {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F", 4);
-                        }
-                        Log.d("ROOMS", rooms.size() + "");
-                    }
-                }).start();
+
+                t = new Thread(new MyThread("F", floorFromSearch == -2 ? "4" : floorFromSearch+"")) ;
+                t.start();
+
                 fabMenu.removeAllMenuButtons();
                 fabMenu.addMenuButton(b4);
                 fabMenu.addMenuButton(b2);
@@ -243,13 +237,9 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.edificio_f2:
                 plant.setImageResource(R.drawable.f2_piano0);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        rooms = db.roomDao().getRoomsByBuildingFloor("F2", 0);
-                        Log.d("ROOMS", rooms.size() + "");
-                    }
-                }).start();
+                t = new Thread(new MyThread("F2", floorFromSearch == -2 ? "0" : floorFromSearch+"")) ;
+                t.start();
+
                 fabMenu.removeAllMenuButtons();
                 fabMenu.addMenuButton(b1);
                 fabMenu.addMenuButton(b0);
@@ -258,13 +248,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.edificio_f3:
                 plant.setImageResource(R.drawable.f3_piano0);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        rooms = db.roomDao().getRoomsByBuildingFloor("F3", 0);
-                        Log.d("ROOMS", rooms.size() + "");
-                    }
-                }).start();
+
+                t = new Thread(new MyThread("F3", floorFromSearch == -2 ? "0" : floorFromSearch+"")) ;
+                t.start();
+
                 fabMenu.removeAllMenuButtons();
                 fabMenu.addMenuButton(b2);
                 fabMenu.addMenuButton(b1);
@@ -274,6 +261,8 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
+        setScrollable(false);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -281,31 +270,47 @@ public class MainActivity extends AppCompatActivity
 
     public void imageClicked(View view) {
         if (isScrollable) {
+
+            setScrollable(false);
+
+        } else {
+
+            setScrollable(true);
+
+        }
+
+    }
+
+    private void setScrollable(boolean scrollable) {
+        if (!scrollable) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
             root.removeView(scrollView);
+            root.removeAllViews();
+
             scrollView.removeView(hScrollView);
             hScrollView.removeView(fc);
-            fc.removeView(view);
+            fc.removeView(plant);
             fc.removeAllViews();
 
-            root.addView(view);
+            root.addView(plant);
 
             isScrollable = false;
+
+            addRooms();
         } else {
-            root.removeView(view);
+            root.removeAllViews();
 
             root.addView(scrollView);
             scrollView.addView(hScrollView);
             hScrollView.addView(fc);
-            fc.addView(view);
+            fc.addView(plant);
+
+            isScrollable = true;
 
             addRooms();
 
-
-            isScrollable = true;
         }
-
     }
 
     @Override
@@ -316,68 +321,39 @@ public class MainActivity extends AppCompatActivity
             switch (building) {
                 case 0:
                     resName = "f_stecca7_piano" + view.getTag();
+
                     plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F", Integer.parseInt((String) v.getTag()));
-                            addRooms();
-                            Log.d("ROOMS", rooms.size() + "");
-                        }
-                    }).start();
+                    t = new Thread(new MyThread("F", (String) view.getTag())) ;
+                    t.start();
                     break;
                 case 1:
                     resName = "f2_piano" + view.getTag();
                     plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F2", v.getTag().equals("m1") ? -1 : Integer.parseInt((String) v.getTag()));
-                            Log.d("ROOMS", rooms.size() + "");
-                        }
-                    }).start();
+                    t = new Thread(new MyThread("F2", (String) view.getTag())) ;
+                    t.start();
                     break;
                 case 2:
                     resName = "f3_piano" + view.getTag();
                     plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            rooms = db.roomDao().getRoomsByBuildingFloor("F3", v.getTag().equals("m1") ? -1 : Integer.parseInt((String) v.getTag()));
-                            Log.d("ROOMS", rooms.size() + "");
-                        }
-                    }).start();
+                    t = new Thread(new MyThread("F3", (String) view.getTag())) ;
+                    t.start();
                     break;
             }
-            if (isScrollable)
-                imageClicked(plant);
+
+            setScrollable(false);
         }
     }
 
     public void addRooms() {
-        MarkerImageView iv;
-        Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
-        int markerd = marker.getWidth();
 
-        for (Room r : rooms) {
-            int x = r.getX() * (int) screen_density;
-            int y = r.getY() * (int) screen_density;
-            int w = r.getWidth() * (int) screen_density;
-            int h = r.getHeight() * (int) screen_density;
-
-            iv = new MarkerImageView(this);
-            iv.setX(x + (w / 2) - (markerd / 2));
-            iv.setY(y + (h / 2) - (markerd / 2));
-            iv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
-
-            iv.setOnClickListener(new MarkerListener(this, fc, llBottomSheet, r));
-
-
-            fc.addView(iv);
-
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
-
+        adder = new Thread(new AddMarkerThread());
+        plant.post(adder);
     }
 
     private void handleIntent(Intent intent) {
@@ -409,8 +385,164 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode,resultCode,data);
         Log.d("RESULT",  "entering");
         if (requestCode == ACTIVITY_REQUEST_CODE) {
-            int roomId = data.getIntExtra("roomId", -1);
+            final int roomId = data.getIntExtra("roomId", -1);
             Log.d("RESULT", roomId + "");
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final Room room = db.roomDao().getRoomById(roomId);
+                    floorFromSearch = room.getFloor();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setBuilding(room.getBuilding());
+                            switch(room.getFloor()) {
+                                case 0:
+                                    b0.callOnClick();
+                                    break;
+                                case 1:
+                                    b1.callOnClick();
+                                    break;
+                                case 2:
+                                    b2.callOnClick();
+                                    break;
+                                case 4:
+                                    b4.callOnClick();
+                                    break;
+                                case -1:
+                                    b_1.callOnClick();
+                                    break;
+                            }
+
+                            plant.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MarkerImageView iv = findViewById(roomId);
+                                    iv.callOnClick();
+                                    iv.bringToFront();
+                                }
+                            });
+                          /*
+                            //getFocusOnView(iv, room.getX(), room.getY());*/
+                        }
+                    });
+                }
+            }).start();
+        }
+    }
+
+    private void setBuilding(String building) {
+        //setchecked?
+        switch (building) {
+            case "F":
+                navigationView.getMenu().getItem(0).setChecked(true);
+                onNavigationItemSelected(navigationView.getMenu().getItem(0));
+                break;
+            case "F2":
+                navigationView.getMenu().getItem(1).setChecked(true);
+                onNavigationItemSelected(navigationView.getMenu().getItem(1));
+                break;
+            case "F3":
+                navigationView.getMenu().getItem(2).setChecked(true);
+                onNavigationItemSelected(navigationView.getMenu().getItem(2));
+                break;
+        }
+
+    }
+
+    private void getFocusOnView(MarkerImageView iv, final int x, final int y) {
+        if (isScrollable) {
+            hScrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    hScrollView.scrollTo(x * (int) screen_density, 0);
+                    scrollView.scrollTo(0, y * (int) screen_density);
+                }
+            });
+        }
+    }
+
+    public class MyThread implements Runnable {
+
+        private String building;
+        private String tag;
+
+        public MyThread(String b, String t) {
+            building = b;
+            tag = t;
+        }
+
+        @Override
+        public void run() {
+
+            rooms = db.roomDao().getRoomsByBuildingFloor(building, tag.equals("m1") ? -1 : Integer.parseInt(tag));
+            Log.d("ROOMS", rooms.size() + "");
+
+        }
+    }
+
+    public class AddMarkerThread implements Runnable {
+
+        @Override
+        public void run() {
+            iw=screenw_px;//width of imageView
+            iH=plant.getDrawable().getIntrinsicHeight();
+            iW = plant.getDrawable().getIntrinsicWidth();//original height of underlying image
+            int scale=plant.getDrawable().getIntrinsicWidth()/screenw_px;
+            ih = screenw_px*iH/iW;//original width of underlying image
+
+            Log.d("PLANT SIZE", plant.getPivotY() + ", " + scale);
+
+            MarkerImageView iv;
+            Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
+            int markerd = marker.getWidth();
+            int offset = (int)root.getPivotY() - (iw/2);
+
+            if (isScrollable) {
+
+                for (Room r : rooms) {
+                    int x = r.getX() * (int) screen_density;
+                    int y = r.getY() * (int) screen_density;
+                    int w = r.getWidth() * (int) screen_density;
+                    int h = r.getHeight() * (int) screen_density;
+
+                    iv = new MarkerImageView(getApplicationContext());
+                    iv.setX(x + (w / 2) - (markerd / 2));
+                    iv.setY(y + (h / 2) - (markerd / 2));
+                    iv.setId(r.getId());
+                    Log.d("ADDED ROOM", r.getId() + "");
+                    iv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+
+                    iv.setOnClickListener(new MarkerListener(getApplicationContext(), fc, llBottomSheet, r));
+
+
+                    fc.addView(iv);
+
+                }
+            }
+            else {
+
+                for (Room r : rooms) {
+                    int x = Math.round(iw * (r.getX() * screen_density) / iW);
+                    int y = Math.round((ih * (r.getY() * screen_density) / iH)) + offset;
+                    int w = Math.round(iw * (r.getWidth() * screen_density) / iW);
+                    int h = Math.round(iw * (r.getHeight() * screen_density) / iW);
+                    iv = new MarkerImageView(getApplicationContext());
+                    iv.setPivotX(0);
+                    iv.setPivotY(0);
+                    iv.setScaleX(0.5f);
+                    iv.setScaleY(0.5f);
+                    iv.setX(x + (w / 2) - (markerd /4));
+                    iv.setY(y + (h / 2) - (markerd / 4));
+                    iv.setId(r.getId());
+                    iv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                    iv.setOnClickListener(new MarkerListener(getApplicationContext(), root, llBottomSheet, r));
+                    root.addView(iv);
+                    Log.d("ADDED ROOM", r.getId() + "");
+                }
+            }
+
         }
     }
 }

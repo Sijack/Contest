@@ -24,4 +24,7 @@ public interface RoomDao {
 
     @Query("SELECT * FROM Room WHERE Room.number LIKE :string OR Room.type LIKE :string")
     List<Room> getRoomsByString(String string);
+
+    @Query("SELECT * FROM Room WHERE Room.id = :id")
+    Room getRoomById(int id);
 }
