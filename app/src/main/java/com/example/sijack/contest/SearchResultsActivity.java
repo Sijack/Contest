@@ -4,23 +4,21 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.sijack.contest.database.AppDatabase;
+import com.example.sijack.contest.database.Professor;
 import com.example.sijack.contest.database.Room;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.os.SystemClock.sleep;
 
 public class SearchResultsActivity extends AppCompatActivity {
 
@@ -63,19 +61,38 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             final String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d("SEARCH", query);
             //use the query to search your data somehow
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     List<Room> rooms;
+                    List<Professor> professors;
                     rooms = db.roomDao().getRoomsByString("%" + query + "%");
-                    Log.d("ROOMS SEARCH", rooms.size() + "");
+                    professors = db.professorDao().findProfessors("%" + query + "%");
+                    Room profRoom;
+                    Log.d("ROOMS SEARCH", rooms.get(0).getNumber() + "");
+                    for (Professor p : professors) {
+                        Log.d("SEARCH", "PROFESSOR " + p.getOfficeNumber() + " " + p.getBuilding());
+
+                        profRoom = db.roomDao().getRoomByNumber(p.getOfficeNumber(), p.getBuilding());
+                        Log.d("SEARCH", "found " + profRoom.getNumber());
+                        if (!rooms.contains(profRoom)) {
+                            rooms.add(profRoom);
+                            Log.d("ROOMS ADDING", p.getOfficeNumber() + "");
+
+                        }
+                    }
+
+                    Log.d("ROOMS SIZE", rooms.size() + "");
                     List<Room> aulee = new ArrayList<Room>(), uffici = new ArrayList<Room>(), laboratori = new ArrayList<Room>();
                     //roomsString = new String[rooms.size()];
                     for (int i=0; i<rooms.size(); i++) {
+                        Log.d("ROOMS INDEX", i + "");
+
                         Room r = rooms.get(i);
+                        Log.d("ROOMS SEARCH", rooms.get(i).getNumber() + "");
+
                         switch (r.getType()) {
                             case "Aula":
                                 aulee.add(r);
@@ -99,21 +116,13 @@ public class SearchResultsActivity extends AppCompatActivity {
 
                 }
             }).start();
-
-
-
-
         }
-
-
     }
 
-
     public void textClicked(View view) {
-        Toast.makeText(getApplicationContext(), view.getTag() + " clicked", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent();
         intent.putExtra("roomId", (int) view.getTag());
-        setResult(0, intent);
+        setResult(RESULT_OK, intent);
         finish();
     }
 }

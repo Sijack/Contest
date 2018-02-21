@@ -27,4 +27,7 @@ public interface RoomDao {
 
     @Query("SELECT * FROM Room WHERE Room.id = :id")
     Room getRoomById(int id);
+
+    @Query("SELECT * FROM Room WHERE Room.number = :number AND Room.building = :building")
+    Room getRoomByNumber(String number, String building);
 }

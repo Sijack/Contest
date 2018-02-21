@@ -160,8 +160,33 @@ public class Room {
                 new Room(18, 114, 241, 226, "Aula", "P3", "F3", 0),
                 new Room(327, 116, 196, 234, "Aula", "P4", "F3", 0),
                 new Room(327, 353, 196, 128, "Aula", "P5", "F3", 0),
-                new Room(327, 482, 196, 128, "Aula", "P6", "F3", 0)
-
+                new Room(327, 482, 196, 128, "Aula", "P6", "F3", 0),
+                new Room(1180, 115, 108, 172, "Laboratorio", "ISIS 2", "F", 2),
+                new Room(1060, 115, 120, 172, "Laboratorio", "ISIS 1", "F", 2),
+                new Room(760, 333, 230, 182, "Laboratorio", "Turing", "F", 2),
+                new Room(1697, 460, 74, 64, "Ufficio", "1", "F", 4),
+                new Room(1629, 460, 64, 64, "Ufficio", "2", "F", 4),
+                new Room(1553, 460, 74, 64, "Ufficio", "3", "F", 4),
+                new Room(1433, 460, 62, 64, "Ufficio", "4", "F", 4),
+                new Room(1003, 460, 72, 64, "Ufficio", "10", "F", 4),
+                new Room(880, 460, 48, 64, "Ufficio", "11", "F", 4),
+                new Room(832, 460, 48, 64, "Ufficio", "12", "F", 4),
+                new Room(781, 460, 48, 64, "Ufficio", "13", "F", 4),
+                new Room(735, 460, 48, 64, "Ufficio", "14", "F", 4),
+                new Room(720, 380, 82, 50, "Ufficio", "40", "F", 4),
+                new Room(720, 234, 82, 50, "Ufficio", "43", "F", 4),
+                new Room(734, 136, 50, 66, "Ufficio", "44", "F", 4),
+                new Room(784, 136, 48, 66, "Ufficio", "45", "F", 4),
+                new Room(880, 136, 58, 66, "Ufficio", "47", "F", 4),
+                new Room(1004, 136, 72, 66, "Ufficio", "48", "F", 4),
+                new Room(1076, 136, 64, 66, "Ufficio", "49", "F", 4),
+                new Room(1286, 136, 52, 66, "Ufficio", "57", "F", 4),
+                new Room(1336, 136, 52, 66, "Ufficio", "58", "F", 4),
+                new Room(1384, 136, 52, 66, "Ufficio", "59", "F", 4),
+                new Room(1436, 136, 60, 66, "Ufficio", "60", "F", 4),
+                new Room(1552, 136, 78, 66, "Ufficio", "61", "F", 4),
+                new Room(1630, 136, 62, 66, "Ufficio", "62", "F", 4),
+                new Room(1694, 136, 78, 66, "Ufficio", "63", "F", 4)
         };
     }
 }

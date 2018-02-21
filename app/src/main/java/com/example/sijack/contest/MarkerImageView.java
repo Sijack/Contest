@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.widget.ImageView;
 
 /**
  * Created by Sijack on 30/01/2018.
@@ -34,6 +33,7 @@ public class MarkerImageView extends android.support.v7.widget.AppCompatImageVie
             Log.d("FOCUS", "setting blue");
         } else {
             this.setImageBitmap(marker);
+            MainActivity.focusedMarkerId = -1;
         }
 
         this.focused = focused;

@@ -7,7 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.sijack.contest.database.AppDatabase;
+import com.example.sijack.contest.database.Professor;
 import com.example.sijack.contest.database.Room;
+
+import java.util.List;
 
 /**
  * Created by Sijack on 16/02/2018.
@@ -16,10 +20,12 @@ import com.example.sijack.contest.database.Room;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
     private Activity activity;
     private Room[] rooms;
+    AppDatabase db;
 
     public RecyclerViewAdapter(Activity activity, Room[] rooms) {
         this.activity = activity;
         this.rooms = rooms;
+        db = AppDatabase.getInstance(activity.getApplicationContext());
     }
 
     @Override
@@ -32,9 +38,27 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Room r = rooms[position];
-        viewHolder.textView.setText(r.getType() + " " + r.getNumber() + ", Edificio " + r.getBuilding());
-        viewHolder.textView.setTag(r.getId());
+        final Room r = rooms[position];
+        final ViewHolder view = viewHolder;
+        if (r.getType().equals("Ufficio")) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String text = "";
+                    List<Professor> professors = db.professorDao().getProfessorByOffice(r.getNumber(), r.getBuilding());
+                    for (Professor p : professors) {
+                        text = text + p.getSurname() + " " + p.getName().substring(0,1) + "., ";
+                    }
+                    text = text + r.getType() + " " + r.getNumber() + ", Edificio " + r.getBuilding();
+                    view.textView.setText(text);
+                    view.textView.setTag(r.getId());
+                }
+            }).start();
+        }
+        else {
+            viewHolder.textView.setText(r.getType() + " " + r.getNumber() + ", Edificio " + r.getBuilding());
+            viewHolder.textView.setTag(r.getId());
+        }
     }
 
     @Override

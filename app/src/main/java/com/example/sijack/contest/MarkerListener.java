@@ -9,7 +9,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.sijack.contest.database.AppDatabase;
+import com.example.sijack.contest.database.Professor;
 import com.example.sijack.contest.database.Room;
+
+import java.util.List;
 
 /**
  * Created by Sijack on 30/01/2018.
@@ -22,6 +26,8 @@ public class MarkerListener implements View.OnClickListener {
     private BottomSheetBehavior bottomSheetBehavior;
     private LinearLayout bottomSheet;
     private Room room;
+    private AppDatabase db;
+    private String text = "";
 
     public MarkerListener(Context context, ViewGroup fc, View bottomSheet, Room r) {
         frameContainer = fc;
@@ -29,6 +35,7 @@ public class MarkerListener implements View.OnClickListener {
         this.bottomSheet = (LinearLayout) bottomSheet;
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         room = r;
+        db = AppDatabase.getInstance(context);
     }
 
     @Override
@@ -50,7 +57,22 @@ public class MarkerListener implements View.OnClickListener {
 
             thisIv.setFocused(true);
             Log.d("FOCUS", thisIv.isFocused() + "");
-            tv.setText(room.getType() + " " + room.getNumber());
+            switch (room.getType()) {
+                case "Ufficio":
+                   Thread t = new Thread(new FinderThread());
+                   t.start();
+                    try {
+                        t.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    tv.setText(text);
+
+                    break;
+                default:
+                        tv.setText(room.getType() + " " + room.getNumber());
+                        break;
+            }
 
             if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED && bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -58,6 +80,18 @@ public class MarkerListener implements View.OnClickListener {
 
         }
 
+    }
+
+    public class FinderThread implements Runnable {
+
+        @Override
+        public void run() {
+            List<Professor> professors = db.professorDao().getProfessorByOffice(room.getNumber(), room.getBuilding());
+            for (Professor p : professors) {
+                text = text + p.getSurname() + " " + p.getName().substring(0,1) + "., ";
+            }
+            text = text + room.getType() + " " + room.getNumber();
+        }
     }
 
 }

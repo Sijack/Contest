@@ -12,10 +12,11 @@ import java.util.concurrent.Executors;
  * Created by Sijack on 25/01/2018.
  */
 
-@Database(entities = {Room.class}, version = 1)
+@Database(entities = {Room.class, Professor.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract RoomDao roomDao();
+    public abstract ProfessorDao professorDao();
     static boolean ok = false;
 
     private static AppDatabase INSTANCE;
@@ -47,6 +48,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             @Override
                             public void run() {
                                 getInstance(context).roomDao().insertAll(Room.populateData());
+                                getInstance(context).professorDao().insertAll(Professor.populateData());
                                 Log.d("DEBUG", "db created");
                             }
                         });

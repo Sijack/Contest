@@ -60,9 +60,10 @@ public class MainActivity extends AppCompatActivity
     AppDatabase db;
     List<Room> rooms;
     NavigationView navigationView;
-    int building, floorFromSearch = -2, iw, ih, iW, iH;
+    int building, floorSelected = -2, iw, ih, iW, iH;
     Toolbar toolbar;
     Thread t, adder;
+    public static int focusedMarkerId = -1;
 
 
     @Override
@@ -221,12 +222,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        String resName;
 
         switch (id) {
             case R.id.edificio_f:
-                plant.setImageResource(R.drawable.f_stecca7_piano4);
+                resName = "f_stecca7_piano" + (floorSelected == -2 ? "4" : floorSelected+"");
+                plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
 
-                t = new Thread(new MyThread("F", floorFromSearch == -2 ? "4" : floorFromSearch+"")) ;
+                t = new Thread(new MyThread("F", floorSelected == -2 ? "4" : floorSelected+"")) ;
                 t.start();
 
                 fabMenu.removeAllMenuButtons();
@@ -236,8 +239,10 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.edificio_f2:
-                plant.setImageResource(R.drawable.f2_piano0);
-                t = new Thread(new MyThread("F2", floorFromSearch == -2 ? "0" : floorFromSearch+"")) ;
+                resName = "f2_piano" + (floorSelected == -2 ? "0" : (floorSelected == -1 ? "m1" : floorSelected+""));
+                plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
+
+                t = new Thread(new MyThread("F2", floorSelected == -2 ? "0" : floorSelected+"")) ;
                 t.start();
 
                 fabMenu.removeAllMenuButtons();
@@ -247,9 +252,10 @@ public class MainActivity extends AppCompatActivity
                 building = 1;
                 break;
             case R.id.edificio_f3:
-                plant.setImageResource(R.drawable.f3_piano0);
+                resName = "f3_piano" + (floorSelected == -2 ? "0" : (floorSelected == -1 ? "m1" : floorSelected+""));
+                plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
 
-                t = new Thread(new MyThread("F3", floorFromSearch == -2 ? "0" : floorFromSearch+"")) ;
+                t = new Thread(new MyThread("F3", floorSelected == -2 ? "0" : floorSelected+"")) ;
                 t.start();
 
                 fabMenu.removeAllMenuButtons();
@@ -261,6 +267,9 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
+        focusedMarkerId = -1;
+        floorSelected = -2;
+
         setScrollable(false);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -269,6 +278,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void imageClicked(View view) {
+
+        MarkerImageView iv;
+        for (Room r : rooms) {
+            iv = findViewById(r.getId());
+            if (iv.isFocused()) {
+                focusedMarkerId = r.getId();
+                Log.d("CLICKED", r.getId() + "");
+                break;
+            }
+        }
+
         if (isScrollable) {
 
             setScrollable(false);
@@ -318,29 +338,21 @@ public class MainActivity extends AppCompatActivity
         if (view instanceof com.github.clans.fab.FloatingActionButton) {
             final View v = view;
             String resName;
+            floorSelected = view.getTag().equals("m1") ? -1 : Integer.parseInt((String)view.getTag());
             switch (building) {
                 case 0:
-                    resName = "f_stecca7_piano" + view.getTag();
-
-                    plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
-                    t = new Thread(new MyThread("F", (String) view.getTag())) ;
-                    t.start();
+                    navigationView.getMenu().getItem(0).setChecked(true);
+                    onNavigationItemSelected(navigationView.getMenu().getItem(0));
                     break;
                 case 1:
-                    resName = "f2_piano" + view.getTag();
-                    plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
-                    t = new Thread(new MyThread("F2", (String) view.getTag())) ;
-                    t.start();
+                    navigationView.getMenu().getItem(1).setChecked(true);
+                    onNavigationItemSelected(navigationView.getMenu().getItem(1));
                     break;
                 case 2:
-                    resName = "f3_piano" + view.getTag();
-                    plant.setImageResource(getResources().getIdentifier(resName, "drawable", getPackageName()));
-                    t = new Thread(new MyThread("F3", (String) view.getTag())) ;
-                    t.start();
+                    navigationView.getMenu().getItem(2).setChecked(true);
+                    onNavigationItemSelected(navigationView.getMenu().getItem(2));
                     break;
             }
-
-            setScrollable(false);
         }
     }
 
@@ -384,7 +396,7 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
         Log.d("RESULT",  "entering");
-        if (requestCode == ACTIVITY_REQUEST_CODE) {
+        if (requestCode == ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             final int roomId = data.getIntExtra("roomId", -1);
             Log.d("RESULT", roomId + "");
 
@@ -392,28 +404,11 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     final Room room = db.roomDao().getRoomById(roomId);
-                    floorFromSearch = room.getFloor();
+                    floorSelected = room.getFloor();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             setBuilding(room.getBuilding());
-                            switch(room.getFloor()) {
-                                case 0:
-                                    b0.callOnClick();
-                                    break;
-                                case 1:
-                                    b1.callOnClick();
-                                    break;
-                                case 2:
-                                    b2.callOnClick();
-                                    break;
-                                case 4:
-                                    b4.callOnClick();
-                                    break;
-                                case -1:
-                                    b_1.callOnClick();
-                                    break;
-                            }
 
                             plant.post(new Runnable() {
                                 @Override
@@ -492,12 +487,12 @@ public class MainActivity extends AppCompatActivity
             int scale=plant.getDrawable().getIntrinsicWidth()/screenw_px;
             ih = screenw_px*iH/iW;//original width of underlying image
 
-            Log.d("PLANT SIZE", plant.getPivotY() + ", " + scale);
+            Log.d("PLANT SIZE", iw + " " + ih + " " + iW + " " + iH + " " + plant.getPivotY() + ", " + scale);
 
             MarkerImageView iv;
             Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
             int markerd = marker.getWidth();
-            int offset = (int)root.getPivotY() - (iw/2);
+            int offset = (int)root.getPivotY() - (ih/2);
 
             if (isScrollable) {
 
@@ -511,13 +506,18 @@ public class MainActivity extends AppCompatActivity
                     iv.setX(x + (w / 2) - (markerd / 2));
                     iv.setY(y + (h / 2) - (markerd / 2));
                     iv.setId(r.getId());
-                    Log.d("ADDED ROOM", r.getId() + "");
                     iv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
 
                     iv.setOnClickListener(new MarkerListener(getApplicationContext(), fc, llBottomSheet, r));
 
 
                     fc.addView(iv);
+
+                    if (r.getId() == focusedMarkerId) {
+                        iv.callOnClick();
+                        iv.bringToFront();
+                        getFocusOnView(iv, r.getX(), r.getY());
+                    }
 
                 }
             }
@@ -538,8 +538,13 @@ public class MainActivity extends AppCompatActivity
                     iv.setId(r.getId());
                     iv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
                     iv.setOnClickListener(new MarkerListener(getApplicationContext(), root, llBottomSheet, r));
+
                     root.addView(iv);
-                    Log.d("ADDED ROOM", r.getId() + "");
+
+                    if (r.getId() == focusedMarkerId) {
+                        iv.callOnClick();
+                        iv.bringToFront();
+                    }
                 }
             }
 
