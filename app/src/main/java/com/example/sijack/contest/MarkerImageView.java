@@ -3,7 +3,6 @@ package com.example.sijack.contest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 /**
  * Created by Sijack on 30/01/2018.
@@ -30,7 +29,6 @@ public class MarkerImageView extends android.support.v7.widget.AppCompatImageVie
 
         if (focused) {
             this.setImageBitmap(blue_marker);
-            Log.d("FOCUS", "setting blue");
         } else {
             this.setImageBitmap(marker);
             MainActivity.focusedMarkerId = -1;

@@ -2,11 +2,9 @@ package com.example.sijack.contest;
 
 import android.content.Context;
 import android.support.design.widget.BottomSheetBehavior;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.sijack.contest.database.AppDatabase;
@@ -56,7 +54,6 @@ public class MarkerListener implements View.OnClickListener {
             }
 
             thisIv.setFocused(true);
-            Log.d("FOCUS", thisIv.isFocused() + "");
             switch (room.getType()) {
                 case "Ufficio":
                    Thread t = new Thread(new FinderThread());

@@ -7,15 +7,15 @@
 
         <item
             android:id="@+id/edificio_f"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_building"
             android:title="Edificio F" />
         <item
             android:id="@+id/edificio_f2"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_building"
             android:title="Edificio F2" />
         <item
             android:id="@+id/edificio_f3"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/ic_building"
             android:title="Edificio F3" />
 
 

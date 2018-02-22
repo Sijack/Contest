@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 
 import com.example.sijack.contest.database.AppDatabase;
@@ -18,7 +17,7 @@ import com.example.sijack.contest.database.Room;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.os.SystemClock.sleep;
+//TODO: migliorare la ricerca (se si cerca nome e cognome, non si trovano risultati)
 
 public class SearchResultsActivity extends AppCompatActivity {
 
@@ -61,6 +60,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             final String query = intent.getStringExtra(SearchManager.QUERY);
+            setTitle("Risultati per \"" + query + "\"");
             //use the query to search your data somehow
 
             new Thread(new Runnable() {
@@ -71,27 +71,18 @@ public class SearchResultsActivity extends AppCompatActivity {
                     rooms = db.roomDao().getRoomsByString("%" + query + "%");
                     professors = db.professorDao().findProfessors("%" + query + "%");
                     Room profRoom;
-                    Log.d("ROOMS SEARCH", rooms.get(0).getNumber() + "");
                     for (Professor p : professors) {
-                        Log.d("SEARCH", "PROFESSOR " + p.getOfficeNumber() + " " + p.getBuilding());
-
                         profRoom = db.roomDao().getRoomByNumber(p.getOfficeNumber(), p.getBuilding());
-                        Log.d("SEARCH", "found " + profRoom.getNumber());
+
                         if (!rooms.contains(profRoom)) {
                             rooms.add(profRoom);
-                            Log.d("ROOMS ADDING", p.getOfficeNumber() + "");
-
                         }
                     }
 
-                    Log.d("ROOMS SIZE", rooms.size() + "");
                     List<Room> aulee = new ArrayList<Room>(), uffici = new ArrayList<Room>(), laboratori = new ArrayList<Room>();
-                    //roomsString = new String[rooms.size()];
-                    for (int i=0; i<rooms.size(); i++) {
-                        Log.d("ROOMS INDEX", i + "");
 
+                    for (int i=0; i<rooms.size(); i++) {
                         Room r = rooms.get(i);
-                        Log.d("ROOMS SEARCH", rooms.get(i).getNumber() + "");
 
                         switch (r.getType()) {
                             case "Aula":

@@ -1,20 +1,15 @@
 package com.example.sijack.contest;
 
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.FloatingActionButton;
-//import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -32,13 +27,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.example.sijack.contest.database.AppDatabase;
 import com.example.sijack.contest.database.Room;
 import com.github.clans.fab.FloatingActionMenu;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -284,7 +277,6 @@ public class MainActivity extends AppCompatActivity
             iv = findViewById(r.getId());
             if (iv.isFocused()) {
                 focusedMarkerId = r.getId();
-                Log.d("CLICKED", r.getId() + "");
                 break;
             }
         }
@@ -378,7 +370,6 @@ public class MainActivity extends AppCompatActivity
             // add query to the Intent Extras
             searchIntent.putExtra(SearchManager.QUERY, query);
             searchIntent.setAction(Intent.ACTION_SEARCH);
-            Log.d("INTENT", "Starting activity for result");
             startActivityForResult(searchIntent, ACTIVITY_REQUEST_CODE);
         }
 
@@ -387,7 +378,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("INTENT", "on new intent");
         setIntent(intent);
         handleIntent(intent);
     }
@@ -395,10 +385,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
-        Log.d("RESULT",  "entering");
+
         if (requestCode == ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             final int roomId = data.getIntExtra("roomId", -1);
-            Log.d("RESULT", roomId + "");
 
             new Thread(new Runnable() {
                 @Override
@@ -451,8 +440,8 @@ public class MainActivity extends AppCompatActivity
             hScrollView.post(new Runnable() {
                 @Override
                 public void run() {
-                    hScrollView.scrollTo(x * (int) screen_density, 0);
-                    scrollView.scrollTo(0, y * (int) screen_density);
+                    hScrollView.scrollTo(Math.round(x * screen_density), 0);
+                    scrollView.scrollTo(0, Math.round(y * screen_density));
                 }
             });
         }
@@ -470,10 +459,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void run() {
-
             rooms = db.roomDao().getRoomsByBuildingFloor(building, tag.equals("m1") ? -1 : Integer.parseInt(tag));
-            Log.d("ROOMS", rooms.size() + "");
-
         }
     }
 
@@ -481,28 +467,33 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void run() {
-            iw=screenw_px;//width of imageView
+            //width current image view on current screen
+            iw=screenw_px;
+            //drawable height
             iH=plant.getDrawable().getIntrinsicHeight();
-            iW = plant.getDrawable().getIntrinsicWidth();//original height of underlying image
-            int scale=plant.getDrawable().getIntrinsicWidth()/screenw_px;
-            ih = screenw_px*iH/iW;//original width of underlying image
-
-            Log.d("PLANT SIZE", iw + " " + ih + " " + iW + " " + iH + " " + plant.getPivotY() + ", " + scale);
+            //drawabke width
+            iW = plant.getDrawable().getIntrinsicWidth();
+            //height current image view on current screen
+            ih = screenw_px*iH/iW;
 
             MarkerImageView iv;
             Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
             int markerd = marker.getWidth();
+
+            //y value of image view position in parent
             int offset = (int)root.getPivotY() - (ih/2);
 
             if (isScrollable) {
 
                 for (Room r : rooms) {
-                    int x = r.getX() * (int) screen_density;
-                    int y = r.getY() * (int) screen_density;
-                    int w = r.getWidth() * (int) screen_density;
-                    int h = r.getHeight() * (int) screen_density;
+                    int x = Math.round(r.getX() *  screen_density);
+                    int y = Math.round(r.getY() *  screen_density);
+                    int w = Math.round(r.getWidth() *  screen_density);
+                    int h = Math.round(r.getHeight() *  screen_density);
 
                     iv = new MarkerImageView(getApplicationContext());
+
+                    //setting marker in center of room
                     iv.setX(x + (w / 2) - (markerd / 2));
                     iv.setY(y + (h / 2) - (markerd / 2));
                     iv.setId(r.getId());
